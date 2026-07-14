@@ -1,0 +1,334 @@
+# hr-analytics-sql-project
+HR Analytics and Employee Attrition Analysis using SQL Server
+PROJECT OVERVIEW
+
+This project analyzes employee data to identify factors contributing to employee attrition and workforce performance. The analysis provides actionable insights that can help organizations improve employee retention, compensation strategies, and workforce planning.
+
+
+BUSINESS QUESTIONS
+
+The project answers questions such as:
+Which departments have the highest attrition?
+Which job roles earn the highest salaries?
+Are there high-performing employees who may be underpaid?
+Which employees are at higher risk of leaving?
+How does attrition vary by gender, education, and marital status?
+What workforce KPIs should management monitor?
+
+
+DATASET
+
+HR Employee Attrition dataset containing information on:
+Demographics,
+Compensation,
+Performance ratings,
+Job satisfaction,
+Years at company,
+Department information,
+Attrition status.
+
+
+SQL SKILLS DEMONSTRATED
+
+SELECT statements,
+Filtering with WHERE,
+Aggregations using COUNT, AVG, MIN, and MAX,
+GROUP BY and ORDER BY,
+CASE statements,
+Window functions,
+RANK(),
+PERCENT_RANK(),
+SUM() OVER(),
+Subqueries,
+Correlated subqueries,
+Business rule implementation.
+
+
+KEY FINDINGS
+
+Identified departments with the highest turnover rates.
+Built attrition risk classifications for employees.
+Detected high-performing employees receiving below-average compensation.
+Produced executive KPI reports for workforce planning and decision-making.
+
+
+BUSINESS RECOMMENDATIONS
+
+Prioritize retention initiatives in high-turnover departments.
+Review compensation for high-performing employees.
+Monitor employees classified as high attrition risk.
+Track workforce KPIs regularly to support strategic HR decisions.
+
+
+TOOLS USED
+
+SQL Server,
+SQL,
+Visual Studio Code.
+
+
+--------------------------------------------------------------------SQL CODES-----------------------------------------------------------------------------
+
+01_data_exploration.sql
+
+Show all employees
+SELECT *
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Select specific columns
+SELECT [EmployeeNumber], [JobRole], [Age]
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Filter by age
+SELECT [EmployeeNumber], [JobRole], [Gender], [Age], [Department], [Education], [Gender],[HourlyRate],[JobInvolvement],[JobLevel]
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+WHERE [Age] > 40
+ORDER BY [Age] DESC
+
+Filter by department
+SELECT [EmployeeNumber], [JobRole], [Department]
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+WHERE [Department] = 'Sales'
+
+Filter by gender
+SELECT [EmployeeNumber], [JobRole], [Department]
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+WHERE [Gender] = 'Female'
+
+02_descriptive_analysis.sql
+
+Employee count by department
+--Count employees in each department.
+SELECT [Department], COUNT(*) AS EmployeeCount
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+ORDER BY EmployeeCount DESC
+
+Average age
+SELECT [Department], AVG([Age]) AS AverageAge
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+ORDER BY [AverageAge] DESC
+
+Average salary
+SELECT [JobRole], AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [JobRole]
+ORDER BY [AverageSalary] DESC
+
+Highest salary
+SELECT [Department], MAX([MonthlyIncome]) AS HighestSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+ORDER BY [HighestSalary] DESC
+
+Lowest salary
+SELECT [Department], MIN([MonthlyIncome]) AS LowestSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+ORDER BY [LowestSalary] DESC
+
+03_attrition_analysis.sql
+
+Employees who left
+SELECT COUNT(*) AS EmployeesWhoLeft
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+WHERE [Attrition] = 1
+
+Attrition rate by department
+SELECT [Department], COUNT(*) AS EmployeesWhoLeft
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+WHERE [Attrition] = 1
+GROUP BY [Department]
+ORDER BY EmployeesWhoLeft DESC
+
+Employee retention analysis
+SELECT [Department], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT() AS AttritionRate
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+
+SELECT [Department], COUNT() AS TotalEmployees, SUM([Attrition]) AS EmployeesWhoLeft, ROUND((SUM([Attrition]) / COUNT()) * 100, 3) AS AttritionRate
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+
+Turnover ranking
+SELECT [Department], COUNT() AS TotalEmployees, SUM([Attrition]) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+RANK() OVER (ORDER BY ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) DESC) AS TurnoverRank
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+
+04_window_functions.sql
+
+Salary rank
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], RANK() OVER (ORDER BY [MonthlyIncome] DESC) AS SalaryRank
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Running total
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], SUM([MonthlyIncome]) OVER (ORDER BY [MonthlyIncome] DESC) AS RunningTotal
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Salary percentile
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], ROUND(PERCENT_RANK() OVER (ORDER BY [MonthlyIncome] DESC), 5)AS SalaryPercentile
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Oldest employee by department
+SELECT [EmployeeNumber], [JobRole], [Age], [Department]
+FROM (
+SELECT [EmployeeNumber], [JobRole], [Age], [Department], ROW_NUMBER() OVER (PARTITION BY [Department] ORDER BY [Age] DESC) AS rn
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+) ranked
+WHERE rn = 1
+
+05_business_cases.sql
+
+Attrition risk prediction
+SELECT [Department],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+
+SELECT [JobRole],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [JobRole]
+
+SELECT [Education],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Education]
+
+SELECT [MaritalStatus],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [MaritalStatus]
+
+SELECT [Gender],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Gender]
+
+SELECT [JobSatisfaction],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [JobSatisfaction]
+ORDER BY [JobSatisfaction] ASC
+
+SELECT [PerformanceRating],
+COUNT() AS TotalEmployees,
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [PerformanceRating]
+ORDER BY [PerformanceRating] ASC
+
+Promotion eligibility
+SELECT [EmployeeNumber], [JobRole], [YearsAtCompany], [PerformanceRating],
+CASE
+WHEN [YearsAtCompany] >= 5 AND [PerformanceRating] >= 4 THEN 'Eligible for Promotion'
+ELSE 'Not Eligible for Promotion'
+END AS PromotionEligibility
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Salary band analysis
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome],
+CASE
+WHEN [MonthlyIncome] < 3000 THEN 'Low'
+WHEN [MonthlyIncome] BETWEEN 3000 AND 7000 THEN 'Medium'
+ELSE 'High'
+END AS SalaryBand
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+High performer, low salary analysis
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], [PerformanceRating],
+CASE
+WHEN [PerformanceRating] >= 4 AND [MonthlyIncome] < (SELECT AVG([MonthlyIncome]) FROM [PracticeDB].[dbo].[HR-Employee-Attrition]) THEN 'High Performer, Low Salary'
+ELSE 'Not Applicable'
+END AS HighPerformerLowSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+
+Gender pay gap
+SELECT [Gender], AVG([MonthlyIncome]) AS AverageSalary
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Gender]
+
+06_executive_kpis.sql
+
+Executive KPI reports
+
+SELECT [JobRole], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM([Attrition]) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary,
+AVG([YearsAtCompany]) AS AverageTenure
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [JobRole]
+
+Department KPIs
+
+SELECT [Department], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM([Attrition]) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary,
+AVG([YearsAtCompany]) AS AverageTenure
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Department]
+
+Education KPIs
+
+SELECT [Education], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM([Attrition]) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary,
+AVG([YearsAtCompany]) AS AverageTenure
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Education]
+ORDER BY [Education] ASC
+
+Marital status KPIs
+
+SELECT [MaritalStatus], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM([Attrition]) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary,
+AVG([YearsAtCompany]) AS AverageTenure
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [MaritalStatus]
+
+Gender KPIs
+
+SELECT [Gender], COUNT() AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+ROUND((SUM([Attrition]) / COUNT()) * 100, 2) AS AttritionRate,
+AVG([Age]) AS AverageAge,
+AVG([MonthlyIncome]) AS AverageSalary,
+AVG([YearsAtCompany]) AS AverageTenure
+FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+GROUP BY [Gender]
+
