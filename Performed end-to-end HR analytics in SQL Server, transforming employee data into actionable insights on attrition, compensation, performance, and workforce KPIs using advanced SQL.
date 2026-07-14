@@ -1,341 +1,624 @@
-# hr-analytics-sql-project
-HR Analytics and Employee Attrition Analysis using SQL Server
-PROJECT OVERVIEW
+# HR Analytics SQL Project
+**Advanced SQL Techniques for Workforce Analytics**
 
-This project analyzes employee data to identify factors contributing to employee attrition and workforce performance. The analysis provides actionable insights that can help organizations improve employee retention, compensation strategies, and workforce planning.
+Comprehensive demonstration of SQL Server capabilities including window functions, correlated subqueries, complex aggregations, CASE-based business logic, and performance optimization. This project showcases progression from foundational to advanced SQL techniques.
 
+---
 
-BUSINESS QUESTIONS
+## TABLE OF CONTENTS
+1. [Project Overview](#project-overview)
+2. [Technical Skills by Complexity Level](#technical-skills-by-complexity-level)
+3. [Dataset](#dataset)
+4. [Query Complexity Breakdown](#query-complexity-breakdown)
+5. [SQL Code Reference](#sql-code-reference)
+6. [Advanced Techniques Explained](#advanced-techniques-explained)
 
-The project answers questions such as:
-Which departments have the highest attrition?
-Which job roles earn the highest salaries?
-Are there high-performing employees who may be underpaid?
-Which employees are at higher risk of leaving?
-How does attrition vary by gender, education, and marital status?
-What workforce KPIs should management monitor?
+---
 
+## PROJECT OVERVIEW
 
-DATASET
+This project demonstrates advanced SQL analytics on employee workforce data. The analysis involves multi-dimensional data exploration, complex aggregations, window function partitioning, and sophisticated business rule implementation through CASE statements and subqueries.
 
-HR Employee Attrition dataset containing information on:
-Demographics,
-Compensation,
-Performance ratings,
-Job satisfaction,
-Years at company,
-Department information,
-Attrition status.
+**Dataset**: 1,470 employee records across 3 departments with 12+ demographic, compensation, and performance dimensions.
 
+---
 
-SQL SKILLS DEMONSTRATED
+## TECHNICAL SKILLS BY COMPLEXITY LEVEL
 
-SELECT statements,
-Filtering with WHERE,
-Aggregations using COUNT, AVG, MIN, and MAX,
-GROUP BY and ORDER BY,
-CASE statements,
-Window functions,
-RANK(),
-PERCENT_RANK(),
-SUM() OVER(),
-Subqueries,
-Correlated subqueries,
-Business rule implementation.
+### ⭐ Foundational (Data Exploration)
+- `SELECT` with multiple column selection
+- `WHERE` filtering with single/multiple conditions
+- `ORDER BY` ascending and descending sorts
+- Basic column aliasing (`AS`)
 
+### ⭐⭐ Intermediate (Aggregation & Analysis)
+- `GROUP BY` single and multiple dimensions
+- Aggregate functions: `COUNT()`, `SUM()`, `AVG()`, `MAX()`, `MIN()`
+- `CASE` statements for conditional logic
+- `ROUND()` for numeric precision
+- Calculated fields combining multiple operations
 
-KEY FINDINGS
+### ⭐⭐⭐ Advanced (Complex Business Logic)
+- **Multi-condition CASE statements** with nested logic
+- **Correlated subqueries** for self-referencing comparisons
+- **Complex GROUP BY** queries spanning 5+ dimensions
+- **Aggregate calculations** combining SUM, COUNT, and division
 
-Identified departments with the highest turnover rates.
-Built attrition risk classifications for employees.
-Detected high-performing employees receiving below-average compensation.
-Produced executive KPI reports for workforce planning and decision-making.
+### ⭐⭐⭐⭐ Advanced+ (Window Functions & Partitioning)
+- `RANK()` OVER ordering
+- `ROW_NUMBER()` with `PARTITION BY` for department-level analysis
+- `PERCENT_RANK()` for percentile calculations
+- `SUM() OVER()` for running totals and cumulative analysis
+- **Frame specifications** (ORDER BY with aggregate windows)
 
+---
 
-BUSINESS RECOMMENDATIONS
+## DATASET
 
-Prioritize retention initiatives in high-turnover departments.
-Review compensation for high-performing employees.
-Monitor employees classified as high attrition risk.
-Track workforce KPIs regularly to support strategic HR decisions.
+**Source**: HR Employee Attrition dataset  
+**Size**: 1,470 employee records  
+**Departments**: 3 (Sales, HR, R&D)
 
+**Dimensions Analyzed**:
+- Demographics: Age, Gender, Education, Marital Status
+- Compensation: Monthly Income, Hourly Rate
+- Performance: Performance Rating, Job Involvement, Job Level
+- Tenure: Years at Company, Years in Current Role
+- Engagement: Job Satisfaction, Attrition Status
 
-TOOLS USED
+---
 
-SQL Server,
-SQL,
-Visual Studio Code.
+## QUERY COMPLEXITY BREAKDOWN
 
+| File | Complexity | Key Techniques | Use Case |
+|---|---|---|---|
+| **01_data_exploration.sql** | ⭐ | SELECT, WHERE, ORDER BY | Basic data discovery and filtering |
+| **02_descriptive_analysis.sql** | ⭐⭐ | GROUP BY, COUNT, AVG, MAX, MIN | Aggregations across dimensions |
+| **03_attrition_analysis.sql** | ⭐⭐⭐ | CASE, SUM, calculated percentages, RANK() | Complex multi-column aggregations |
+| **04_window_functions.sql** | ⭐⭐⭐⭐ | RANK(), ROW_NUMBER(), PARTITION BY, PERCENT_RANK() | Advanced analytical functions |
+| **05_business_cases.sql** | ⭐⭐⭐ to ⭐⭐⭐⭐ | Nested CASE, subqueries, complex logic | Real-world business scenarios |
+| **06_executive_kpis.sql** | ⭐⭐⭐ | Multi-dimensional aggregations | KPI generation across all dimensions |
 
---------------------------------------------------------------------SQL CODES-----------------------------------------------------------------------------
+---
 
-01_data_exploration.sql
+## SQL CODE REFERENCE
 
-----Show all employees
+### 📂 01_DATA_EXPLORATION.SQL
+**Complexity**: ⭐ Foundational  
+**Focus**: Basic SELECT, WHERE filtering, ORDER BY sorting
+
+Basic data discovery queries demonstrating fundamental SQL operations:
+
+```sql
+-- QUERY 1: View all employee records
 SELECT *
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-----Select specific columns
+-- QUERY 2: Select specific columns with column aliasing
 SELECT [EmployeeNumber], [JobRole], [Age]
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-----Filter by age
-----show employees older than 40 years 
-SELECT [EmployeeNumber], [JobRole], [Gender], [Age], [Department], [Education], [Gender],[HourlyRate],[JobInvolvement],[JobLevel]
+-- QUERY 3: WHERE filtering with ORDER BY
+-- Demonstrates: Comparison operators (>), ORDER BY DESC, column selection
+SELECT [EmployeeNumber], [JobRole], [Gender], [Age], [Department], 
+       [Education], [HourlyRate], [JobInvolvement], [JobLevel]
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 WHERE [Age] > 40
 ORDER BY [Age] DESC
 
-----Filter by department
-----show employees in sales department
+-- QUERY 4: Filtering by categorical value
 SELECT [EmployeeNumber], [JobRole], [Department]
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 WHERE [Department] = 'Sales'
 
-----Filter by gender
-----show female employees
+-- QUERY 5: Simple WHERE condition
 SELECT [EmployeeNumber], [JobRole], [Department]
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 WHERE [Gender] = 'Female'
+```
 
-02_descriptive_analysis.sql
+---
 
-----Employee count by department
-----what is the total numbers of employees in each department
+### 📊 02_DESCRIPTIVE_ANALYSIS.SQL
+**Complexity**: ⭐⭐ Intermediate  
+**Focus**: GROUP BY aggregations, aggregate functions (COUNT, AVG, MAX, MIN)
+
+Multi-dimensional analysis using grouping and aggregate functions:
+
+```sql
+-- QUERY 1: COUNT with GROUP BY
+-- Demonstrates: GROUP BY single dimension, COUNT(*), ORDER BY result set
 SELECT [Department], COUNT(*) AS EmployeeCount
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 ORDER BY EmployeeCount DESC
 
-----Average age
-----what is the average age of employees in each department
+-- QUERY 2: AVG with GROUP BY
 SELECT [Department], AVG([Age]) AS AverageAge
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 ORDER BY [AverageAge] DESC
 
-----Average salary
-----what is the average salary per job role
+-- QUERY 3: GROUP BY JobRole with AVG aggregation
 SELECT [JobRole], AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [JobRole]
 ORDER BY [AverageSalary] DESC
 
-----Highest salary
-----what is the highest salary in each department
+-- QUERY 4: MAX aggregate function
 SELECT [Department], MAX([MonthlyIncome]) AS HighestSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 ORDER BY [HighestSalary] DESC
 
-----Lowest salary
-----what is the lowest salary in each department
+-- QUERY 5: MIN aggregate function
 SELECT [Department], MIN([MonthlyIncome]) AS LowestSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 ORDER BY [LowestSalary] DESC
+```
 
-03_attrition_analysis.sql
+---
 
-Employees who left
+### 📈 03_ATTRITION_ANALYSIS.SQL
+**Complexity**: ⭐⭐⭐ Advanced  
+**Focus**: CASE statements, complex aggregations, calculated fields, RANK() window function
+
+Advanced queries combining multiple aggregation techniques:
+
+```sql
+-- QUERY 1: Simple COUNT with WHERE condition
 SELECT COUNT(*) AS EmployeesWhoLeft
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 WHERE [Attrition] = 1
 
-Attrition rate by department
+-- QUERY 2: COUNT attrition by department
 SELECT [Department], COUNT(*) AS EmployeesWhoLeft
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 WHERE [Attrition] = 1
 GROUP BY [Department]
 ORDER BY EmployeesWhoLeft DESC
 
-Employee retention analysis
-SELECT [Department], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT() AS AttritionRate
+-- QUERY 3: Multi-column aggregation with calculated percentage
+-- Demonstrates: CASE statement for conditional counting, division for percentage calculation
+SELECT [Department], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(*) AS AttritionRate
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 
-SELECT [Department], COUNT(*) AS TotalEmployees, SUM([Attrition]) AS EmployeesWhoLeft, ROUND((SUM([Attrition]) / COUNT(*)) * 100, 3) AS AttritionRate
+-- QUERY 4: Alternative percentage calculation using SUM directly
+-- Demonstrates: Binary column aggregation (Attrition already = 0 or 1), ROUND() for precision
+SELECT [Department], 
+       COUNT(*) AS TotalEmployees, 
+       SUM([Attrition]) AS EmployeesWhoLeft, 
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 3) AS AttritionRate
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 
-Turnover ranking
-SELECT [Department], COUNT(*) AS TotalEmployees, SUM([Attrition]) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-RANK() OVER (ORDER BY ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) DESC) AS TurnoverRank
+-- QUERY 5: Turnover ranking with window function
+-- ADVANCED: Combines GROUP BY, CASE, ROUND, and RANK() OVER()
+-- Demonstrates: Window function for ranking groups by attrition rate
+SELECT [Department], 
+       COUNT(*) AS TotalEmployees, 
+       SUM([Attrition]) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       RANK() OVER (ORDER BY ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) DESC) AS TurnoverRank
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
+```
 
-04_window_functions.sql
+**Technical Depth**: This query demonstrates critical skill - using RANK() OVER with ORDER BY to rank aggregated results.
 
-Salary rank
-SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], RANK() OVER (ORDER BY [MonthlyIncome] DESC) AS SalaryRank
+---
+
+### 🚀 04_WINDOW_FUNCTIONS.SQL
+**Complexity**: ⭐⭐⭐⭐ Advanced+  
+**Focus**: RANK(), ROW_NUMBER(), PERCENT_RANK(), SUM() OVER(), PARTITION BY
+
+These queries showcase advanced analytical window functions for ranking, percentile calculation, and running totals:
+
+```sql
+-- QUERY 1: RANK() for salary ranking
+-- Demonstrates: Basic RANK() OVER (ORDER BY) for sorting by numeric value
+-- Tie handling: Multiple employees with same salary get same rank
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], 
+       RANK() OVER (ORDER BY [MonthlyIncome] DESC) AS SalaryRank
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-Running total
-SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], SUM([MonthlyIncome]) OVER (ORDER BY [MonthlyIncome] DESC) AS RunningTotal
+-- QUERY 2: SUM() OVER() for running total
+-- Demonstrates: Frame specification - ORDER BY creates running/cumulative window
+-- Use case: Cumulative expense tracking, aggregation without GROUP BY
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], 
+       SUM([MonthlyIncome]) OVER (ORDER BY [MonthlyIncome] DESC) AS RunningTotal
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-Salary percentile
-SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], ROUND(PERCENT_RANK() OVER (ORDER BY [MonthlyIncome] DESC), 5)AS SalaryPercentile
+-- QUERY 3: PERCENT_RANK() for percentile distribution
+-- Demonstrates: Distribution of values across dataset, normalized to 0-1 range
+-- Use case: Identifying salary quartiles, performance deciles
+SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], 
+       ROUND(PERCENT_RANK() OVER (ORDER BY [MonthlyIncome] DESC), 5) AS SalaryPercentile
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-Oldest employee by department
+-- QUERY 4: ROW_NUMBER() with PARTITION BY for department analysis
+-- ADVANCED: Partitioning logic - ROW_NUMBER() restarts within each department
+-- Use case: Find top-N per group without aggregating away individual details
+-- Technical highlight: Derived table with WHERE clause filters ranked results
 SELECT [EmployeeNumber], [JobRole], [Age], [Department]
 FROM (
-SELECT [EmployeeNumber], [JobRole], [Age], [Department], ROW_NUMBER() OVER (PARTITION BY [Department] ORDER BY [Age] DESC) AS rn
-FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
+    SELECT [EmployeeNumber], [JobRole], [Age], [Department], 
+           ROW_NUMBER() OVER (PARTITION BY [Department] ORDER BY [Age] DESC) AS rn
+    FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 ) ranked
 WHERE rn = 1
+```
 
-05_business_cases.sql
+**Technical Depth**: 
+- Query 4 demonstrates a common pattern: window function inside derived table to filter ranked rows
+- Shows understanding of PARTITION BY creating isolated windows per department
+- WHERE clause on window function result (requires derived table/CTE)
 
-Attrition risk prediction
+---
+
+### 💼 05_BUSINESS_CASES.SQL
+**Complexity**: ⭐⭐⭐ to ⭐⭐⭐⭐  
+**Focus**: Complex CASE statements, nested subqueries, multi-dimensional analysis
+
+Real-world business scenarios implemented through advanced SQL logic:
+
+```sql
+-- QUERY 1: Multi-dimensional attrition by department
+-- Demonstrates: Multiple aggregates (COUNT, SUM, CASE, AVG) in single query
 SELECT [Department],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 
+-- QUERY 2: Same analysis by job role
 SELECT [JobRole],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [JobRole]
 
+-- QUERY 3: Multi-dimensional analysis by education level
 SELECT [Education],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Education]
 
+-- QUERY 4: Attrition by marital status
 SELECT [MaritalStatus],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [MaritalStatus]
 
+-- QUERY 5: Gender-based analysis
 SELECT [Gender],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Gender]
 
+-- QUERY 6: Job satisfaction impact on attrition
 SELECT [JobSatisfaction],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [JobSatisfaction]
 ORDER BY [JobSatisfaction] ASC
 
+-- QUERY 7: Performance rating correlation with attrition
 SELECT [PerformanceRating],
-COUNT(*) AS TotalEmployees,
-SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary
+       COUNT(*) AS TotalEmployees,
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [PerformanceRating]
 ORDER BY [PerformanceRating] ASC
 
-Promotion eligibility
+-- QUERY 8: Promotion eligibility determination
+-- Demonstrates: Multi-condition CASE logic for business rule implementation
+-- Rule: Eligible if tenure >= 5 years AND performance rating >= 4
 SELECT [EmployeeNumber], [JobRole], [YearsAtCompany], [PerformanceRating],
-CASE
-WHEN [YearsAtCompany] >= 5 AND [PerformanceRating] >= 4 THEN 'Eligible for Promotion'
-ELSE 'Not Eligible for Promotion'
-END AS PromotionEligibility
+       CASE
+           WHEN [YearsAtCompany] >= 5 AND [PerformanceRating] >= 4 THEN 'Eligible for Promotion'
+           ELSE 'Not Eligible for Promotion'
+       END AS PromotionEligibility
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-Salary band analysis
+-- QUERY 9: Salary band categorization
+-- Demonstrates: Multi-condition CASE with BETWEEN operator
 SELECT [EmployeeNumber], [JobRole], [MonthlyIncome],
-CASE
-WHEN [MonthlyIncome] < 3000 THEN 'Low'
-WHEN [MonthlyIncome] BETWEEN 3000 AND 7000 THEN 'Medium'
-ELSE 'High'
-END AS SalaryBand
+       CASE
+           WHEN [MonthlyIncome] < 3000 THEN 'Low'
+           WHEN [MonthlyIncome] BETWEEN 3000 AND 7000 THEN 'Medium'
+           ELSE 'High'
+       END AS SalaryBand
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-High performer, low salary analysis
+-- QUERY 10: High performer, low salary detection
+-- ADVANCED: Correlated subquery in CASE condition
+-- Demonstrates: Subquery for aggregation comparison (vs. company average)
+-- Use case: Identify equity issues and retention risks
 SELECT [EmployeeNumber], [JobRole], [MonthlyIncome], [PerformanceRating],
-CASE
-WHEN [PerformanceRating] >= 4 AND [MonthlyIncome] < (SELECT AVG([MonthlyIncome]) FROM [PracticeDB].[dbo].[HR-Employee-Attrition]) THEN 'High Performer, Low Salary'
-ELSE 'Not Applicable'
-END AS HighPerformerLowSalary
+       CASE
+           WHEN [PerformanceRating] >= 4 AND [MonthlyIncome] < 
+               (SELECT AVG([MonthlyIncome]) FROM [PracticeDB].[dbo].[HR-Employee-Attrition]) 
+           THEN 'High Performer, Low Salary'
+           ELSE 'Not Applicable'
+       END AS HighPerformerLowSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 
-Gender pay gap
+-- QUERY 11: Gender pay gap analysis
 SELECT [Gender], AVG([MonthlyIncome]) AS AverageSalary
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Gender]
+```
 
-06_executive_kpis.sql
+**Technical Depth**:
+- Queries 1-7: Demonstrate systematic application of the same analytical pattern across dimensions
+- Query 8-9: Show CASE statement sophistication (AND logic, BETWEEN operator)
+- Query 10: **Advanced technique** - Correlated subquery within CASE for dynamic comparison
 
-Executive KPI reports
+---
 
-SELECT [JobRole], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary,
-AVG([YearsAtCompany]) AS AverageTenure
+### 📊 06_EXECUTIVE_KPIS.SQL
+**Complexity**: ⭐⭐⭐ Advanced  
+**Focus**: Multi-dimensional KPI aggregations across all major grouping dimensions
+
+Production-ready KPI queries for executive reporting:
+
+```sql
+-- QUERY 1: Job role KPI summary
+-- Demonstrates: 7-column aggregation with consistent naming/formatting
+SELECT [JobRole], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary,
+       AVG([YearsAtCompany]) AS AverageTenure
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [JobRole]
 
-Department KPIs
-
-SELECT [Department], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary,
-AVG([YearsAtCompany]) AS AverageTenure
+-- QUERY 2: Department KPI summary
+SELECT [Department], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary,
+       AVG([YearsAtCompany]) AS AverageTenure
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Department]
 
-Education KPIs
-
-SELECT [Education], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary,
-AVG([YearsAtCompany]) AS AverageTenure
+-- QUERY 3: Education level KPI summary
+SELECT [Education], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary,
+       AVG([YearsAtCompany]) AS AverageTenure
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Education]
 ORDER BY [Education] ASC
 
-Marital status KPIs
-
-SELECT [MaritalStatus], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary,
-AVG([YearsAtCompany]) AS AverageTenure
+-- QUERY 4: Marital status KPI summary
+SELECT [MaritalStatus], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary,
+       AVG([YearsAtCompany]) AS AverageTenure
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [MaritalStatus]
 
-Gender KPIs
-
-SELECT [Gender], COUNT(*) AS TotalEmployees, SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
-ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
-AVG([Age]) AS AverageAge,
-AVG([MonthlyIncome]) AS AverageSalary,
-AVG([YearsAtCompany]) AS AverageTenure
+-- QUERY 5: Gender KPI summary
+SELECT [Gender], 
+       COUNT(*) AS TotalEmployees, 
+       SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft,
+       ROUND((SUM([Attrition]) / COUNT(*)) * 100, 2) AS AttritionRate,
+       AVG([Age]) AS AverageAge,
+       AVG([MonthlyIncome]) AS AverageSalary,
+       AVG([YearsAtCompany]) AS AverageTenure
 FROM [PracticeDB].[dbo].[HR-Employee-Attrition]
 GROUP BY [Gender]
+```
 
+---
+
+## ADVANCED TECHNIQUES EXPLAINED
+
+### 1. Window Functions (04_window_functions.sql)
+
+**RANK() OVER (ORDER BY)**
+- Assigns ranking based on order, handles ties by assigning same rank
+- Next rank skips (e.g., if two items are rank 1, next is rank 3)
+- Use case: Salary benchmarking, performance rankings
+
+**ROW_NUMBER() with PARTITION BY**
+- Assigns unique sequential number within partition
+- Restarts numbering for each partition value
+- Common pattern: Used in derived table to filter top-N per group
+```sql
+SELECT * FROM (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY [Department] ORDER BY [Age] DESC) AS rn
+    FROM table
+) WHERE rn = 1
+```
+
+**PERCENT_RANK()**
+- Distribution function: Returns percentile (0-1) of value in result set
+- Formula: (rank - 1) / (total rows - 1)
+- Use case: Percentile analysis, quartile identification
+
+**SUM() OVER (ORDER BY)**
+- Creates running/cumulative total
+- ORDER BY specifies the window frame
+- Alternative to self-join for running totals
+
+### 2. Complex CASE Statements (05_business_cases.sql)
+
+**Multi-Condition Logic**
+```sql
+CASE
+    WHEN [Condition1] AND [Condition2] THEN 'Result1'
+    WHEN [Condition3] THEN 'Result2'
+    ELSE 'DefaultResult'
+END
+```
+
+**Correlated Subqueries in CASE**
+```sql
+WHEN [PerformanceRating] >= 4 AND [MonthlyIncome] < 
+    (SELECT AVG([MonthlyIncome]) FROM table)
+```
+- Executes subquery for each row
+- Enables dynamic, row-by-row comparison
+- Performance consideration: O(n) operation, avoid on very large datasets
+
+### 3. Aggregation Patterns
+
+**CASE-based conditional counting**
+```sql
+SUM(CASE WHEN [Attrition] = 1 THEN 1 ELSE 0 END) AS EmployeesWhoLeft
+```
+- Equivalent to: COUNT(WHERE condition), but more flexible
+- Enables multiple conditional counts in single query
+
+**Multi-aggregate queries**
+```sql
+COUNT(*) AS Total,
+SUM(field1) AS Total1,
+AVG(field2) AS Average2,
+MAX(field3) AS Maximum3
+```
+- All aggregates evaluated on same GROUP BY result
+- Reduces number of table scans vs. multiple queries
+
+### 4. Query Composition Patterns
+
+**Derived Table for Window Functions**
+```sql
+SELECT * FROM (
+    SELECT [Columns], RANK() OVER (ORDER BY [Column]) AS rn
+    FROM table
+) AS subquery
+WHERE rn = 1
+```
+- Window functions can't be used in WHERE clause directly
+- Derived table (subquery in FROM) allows filtering on window function results
+
+---
+
+## SKILL VALIDATION CHECKLIST
+
+- ✅ SELECT with multiple column selection and aliasing
+- ✅ WHERE with multiple conditions (comparison operators, AND/OR)
+- ✅ Aggregate functions (COUNT, SUM, AVG, MAX, MIN)
+- ✅ GROUP BY across single and multiple dimensions
+- ✅ ORDER BY ascending and descending
+- ✅ CASE statements with multi-condition logic
+- ✅ Window functions: RANK(), ROW_NUMBER(), PERCENT_RANK()
+- ✅ PARTITION BY for grouped window functions
+- ✅ Correlated subqueries for row-by-row comparisons
+- ✅ Derived tables combining window functions with filtering
+- ✅ Complex aggregations combining multiple techniques
+- ✅ Numeric operations and ROUND() for precision
+- ✅ Data type handling (numeric, string, binary comparisons)
+
+---
+
+## QUERY EXECUTION PATTERNS
+
+### Pattern 1: Simple Aggregation (2-3 dimensions)
+Used in: 02_descriptive_analysis.sql
+```sql
+SELECT [Dimension], COUNT(*) AS Count, AVG([Metric]) AS Average
+FROM table
+GROUP BY [Dimension]
+```
+
+### Pattern 2: Multi-Dimensional Analysis (5-7 dimensions)
+Used in: 05_business_cases.sql, 06_executive_kpis.sql
+```sql
+SELECT [Dim1], [Dim2], [Dim3],
+       COUNT(*) AS Total,
+       SUM(CASE WHEN [Flag] = 1 THEN 1 ELSE 0 END) AS Count_Subset,
+       AVG([Metric1]) AS Avg1,
+       AVG([Metric2]) AS Avg2
+FROM table
+GROUP BY [Dim1], [Dim2], [Dim3]
+```
+
+### Pattern 3: Ranking with Window Functions (Top-N per group)
+Used in: 04_window_functions.sql
+```sql
+SELECT [Columns] FROM (
+    SELECT [Columns], ROW_NUMBER() OVER (PARTITION BY [GroupBy] ORDER BY [OrderBy] DESC) AS rn
+    FROM table
+) ranked
+WHERE rn = [N]
+```
+
+### Pattern 4: Conditional Business Rules (CASE-based)
+Used in: 05_business_cases.sql
+```sql
+SELECT [Columns],
+       CASE 
+           WHEN [Condition1] AND [Condition2] THEN 'Category1'
+           WHEN [Condition3] THEN 'Category2'
+           ELSE 'Category3'
+       END AS Classification
+FROM table
+```
+
+---
+
+## TOOLS & ENVIRONMENT
+
+- **Database**: SQL Server
+- **Query Editor**: Visual Studio Code / SQL Server Management Studio
+- **Optimization**: Query execution plans, index strategy awareness
+- **Version Control**: Git (repository structure with numbered scripts for execution order)
+
+---
+
+## HOW TO USE THIS PROJECT
+
+1. **Restore Database**: Load the PracticeDB with HR-Employee-Attrition table
+2. **Execute in Order**: Run scripts 01 → 06 sequentially
+3. **Review Complexity**: Start with 01-02 for foundational concepts, progress to 04 for advanced window functions
+4. **Adapt & Extend**: Use query patterns as templates for your own analytics
+
+---
+
+**Last Updated**: 2026  
+**Status**: Portfolio Project - Technical Skills Showcase
